@@ -1,10 +1,10 @@
 /*
  * Copyright © 2014 <code@io7m.com> http://io7m.com
- *
+ * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -54,7 +54,8 @@ import com.io7m.jlog.LogUsableType;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 
-final class SigiltronMainWindow extends JFrame
+@SuppressWarnings({ "boxing", "synthetic-access" }) final class SigiltronMainWindow extends
+  JFrame
 {
   private static final long serialVersionUID = 4203471970752993711L;
 
@@ -192,21 +193,22 @@ final class SigiltronMainWindow extends JFrame
           cs.add(new Character(ch));
         }
 
+        final SigiltronMainWindow sw = SigiltronMainWindow.this;
         final SigilTextFunctionType f =
-          (SigilTextFunctionType) SigiltronMainWindow.this.function
-            .getSelectedItem();
+          (SigilTextFunctionType) sw.function.getSelectedItem();
         final SigilFontFunctionType ff =
-          (SigilFontFunctionType) SigiltronMainWindow.this.font_function
-            .getSelectedItem();
+          (SigilFontFunctionType) sw.font_function.getSelectedItem();
         final SigilRotationFunctionType rf =
-          (SigilRotationFunctionType) SigiltronMainWindow.this.rotation_function
-            .getSelectedItem();
+          (SigilRotationFunctionType) sw.rotation_function.getSelectedItem();
         final SigilSpreadFunctionType sf =
-          (SigilSpreadFunctionType) SigiltronMainWindow.this.spread_function
-            .getSelectedItem();
+          (SigilSpreadFunctionType) sw.spread_function.getSelectedItem();
 
-        SigiltronMainWindow.this.generateImage(f.process(cs), ff, rf, sf);
-        SigiltronMainWindow.this.save.setEnabled(true);
+        assert ff != null;
+        assert rf != null;
+        assert sf != null;
+
+        sw.generateImage(f.process(cs), ff, rf, sf);
+        sw.save.setEnabled(true);
       }
     });
 
