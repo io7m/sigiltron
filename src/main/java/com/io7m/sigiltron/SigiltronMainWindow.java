@@ -81,6 +81,85 @@ import com.io7m.jnull.Nullable;
     return rs;
   }
 
+  private static JComboBox<SigilFontFunctionType> newFontFunctionSelector(
+    final JComboBox<String> fonts)
+  {
+    final JComboBox<SigilFontFunctionType> ff =
+      new JComboBox<SigilFontFunctionType>();
+    ff.addItem(new SigilFontFunctionSelected(fonts));
+    final SigilFontFunctionRandom default_item =
+      new SigilFontFunctionRandom(fonts);
+    ff.addItem(default_item);
+    ff.setSelectedItem(default_item);
+    ff
+      .setToolTipText("A function that decides the font to use for each character");
+    return ff;
+  }
+
+  private static JComboBox<String> newFontSelector()
+  {
+    final JComboBox<String> f = new JComboBox<String>();
+    for (final String name : SigiltronMainWindow.getFontList()) {
+      f.addItem(name);
+    }
+    f
+      .setToolTipText("The font to use for rendering, if the font function allows it");
+    return f;
+  }
+
+  private static
+    JComboBox<SigilRotationFunctionType>
+    newRotationFunctionSelector()
+  {
+    final JComboBox<SigilRotationFunctionType> rf =
+      new JComboBox<SigilRotationFunctionType>();
+    rf.addItem(new SigilRotationFunctionRandom());
+    final SigilRotationFunctionRandom45 default_item =
+      new SigilRotationFunctionRandom45();
+    rf.addItem(default_item);
+    rf.setSelectedItem(default_item);
+    rf
+      .setToolTipText("A function that decides how much rotation to apply to each character");
+    return rf;
+  }
+
+  private static
+    JComboBox<SigilSpreadFunctionType>
+    newSpreadFunctionSelector()
+  {
+    final JComboBox<SigilSpreadFunctionType> sf =
+      new JComboBox<SigilSpreadFunctionType>();
+    sf.addItem(new SigilSpreadFunctionExact());
+    final SigilSpreadFunctionRandom default_item =
+      new SigilSpreadFunctionRandom();
+    sf.addItem(default_item);
+    sf.setSelectedItem(default_item);
+    sf.setToolTipText("A function applied to the spread value");
+    return sf;
+  }
+
+  private static JFormattedTextField newSpreadSelector()
+  {
+    final JFormattedTextField s = new JFormattedTextField();
+    s.setValue(Integer.valueOf(250));
+    s
+      .setText("How far out each character will be pushed from the center of the canvas");
+    return s;
+  }
+
+  private static JComboBox<SigilTextFunctionType> newTextFunctionSelector()
+  {
+    final JComboBox<SigilTextFunctionType> f =
+      new JComboBox<SigilTextFunctionType>();
+    f.addItem(new SigilTextFunctionRemoveDuplicates());
+    final SigilTextFunctionIdentity default_item =
+      new SigilTextFunctionIdentity();
+    f.addItem(default_item);
+    f.setSelectedItem(default_item);
+    f.setToolTipText("A function applied to the given intent");
+    return f;
+  }
+
   private final JSVGCanvas                           canvas;
   private JPanel                                     controls;
   private @Nullable SVGDocument                      document;
@@ -108,51 +187,17 @@ import com.io7m.jnull.Nullable;
     this.canvas.setPreferredSize(new Dimension(640, 480));
     this.canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-    {
-      this.function = new JComboBox<SigilTextFunctionType>();
-      this.function.addItem(new SigilTextFunctionRemoveDuplicates());
-      final SigilTextFunctionIdentity default_item =
-        new SigilTextFunctionIdentity();
-      this.function.addItem(default_item);
-      this.function.setSelectedItem(default_item);
-    }
-
-    this.fonts = new JComboBox<String>();
-    for (final String f : SigiltronMainWindow.getFontList()) {
-      this.fonts.addItem(f);
-    }
-
-    {
-      this.font_function = new JComboBox<SigilFontFunctionType>();
-      this.font_function.addItem(new SigilFontFunctionSelected(this.fonts));
-      final SigilFontFunctionRandom default_item =
-        new SigilFontFunctionRandom(this.fonts);
-      this.font_function.addItem(default_item);
-      this.font_function.setSelectedItem(default_item);
-    }
-
-    {
-      this.rotation_function = new JComboBox<SigilRotationFunctionType>();
-      this.rotation_function.addItem(new SigilRotationFunctionRandom());
-      final SigilRotationFunctionRandom45 default_item =
-        new SigilRotationFunctionRandom45();
-      this.rotation_function.addItem(default_item);
-      this.rotation_function.setSelectedItem(default_item);
-    }
-
-    this.spread = new JFormattedTextField();
-    this.spread.setValue(Integer.valueOf(250));
-
-    {
-      this.spread_function = new JComboBox<SigilSpreadFunctionType>();
-      this.spread_function.addItem(new SigilSpreadFunctionExact());
-      final SigilSpreadFunctionRandom default_item =
-        new SigilSpreadFunctionRandom();
-      this.spread_function.addItem(default_item);
-      this.spread_function.setSelectedItem(default_item);
-    }
+    this.function = SigiltronMainWindow.newTextFunctionSelector();
+    this.fonts = SigiltronMainWindow.newFontSelector();
+    this.font_function =
+      SigiltronMainWindow.newFontFunctionSelector(this.fonts);
+    this.rotation_function =
+      SigiltronMainWindow.newRotationFunctionSelector();
+    this.spread = SigiltronMainWindow.newSpreadSelector();
+    this.spread_function = SigiltronMainWindow.newSpreadFunctionSelector();
 
     this.save = new JButton("Save...");
+    this.save.setToolTipText("Save a sigil as an SVG image");
     this.save.setEnabled(false);
     this.save.addActionListener(new ActionListener() {
       @Override public void actionPerformed(
@@ -164,16 +209,16 @@ import com.io7m.jnull.Nullable;
           final JFileChooser dialog = new JFileChooser();
           dialog.setMultiSelectionEnabled(false);
           dialog.setFileFilter(new FileFilter() {
-            @Override public String getDescription()
-            {
-              return "SVG files (*.svg)";
-            }
-
             @Override public boolean accept(
               @Nullable final File f)
             {
               final File fn = NullCheck.notNull(f, "File");
               return fn.isDirectory() || fn.getName().endsWith(".svg");
+            }
+
+            @Override public String getDescription()
+            {
+              return "SVG files (*.svg)";
             }
           });
 
@@ -195,6 +240,7 @@ import com.io7m.jnull.Nullable;
 
     final JTextField input = new JTextField();
     final JButton input_now = new JButton("Generate");
+    input_now.setToolTipText("Generate a sigil!");
     input_now.addActionListener(new ActionListener() {
       @Override public void actionPerformed(
         @Nullable final ActionEvent e)
