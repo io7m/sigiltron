@@ -91,7 +91,6 @@ import com.io7m.jnull.Nullable;
   private final JComboBox<SigilRotationFunctionType> rotation_function;
   private final JButton                              save;
   private final JFormattedTextField                  spread;
-
   private JComboBox<SigilSpreadFunctionType>         spread_function;
 
   SigiltronMainWindow(
@@ -246,7 +245,6 @@ import com.io7m.jnull.Nullable;
     final SVGDocument doc =
       (SVGDocument) impl.createDocument(svg_ns, "svg", null);
 
-    // Create a converter for this document.
     final SVGGraphics2D g = new SVGGraphics2D(doc);
 
     final int center_x = this.canvas.getWidth() / 2;
