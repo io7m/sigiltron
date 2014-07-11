@@ -16,12 +16,14 @@
 
 package com.io7m.sigiltron;
 
+import com.io7m.jnull.NullCheck;
+
 /**
  * A completely random rotation.
  */
 
 public final class SigilRotationFunctionRandom implements
-SigilRotationFunctionType
+  SigilRotationFunctionType
 {
   /**
    * Construct a rotation function.
@@ -32,10 +34,10 @@ SigilRotationFunctionType
 
   }
 
-  @Override public Double getRotation(
+  @SuppressWarnings("boxing") @Override public Double getRotation(
     final Character c)
   {
-    return Math.random();
+    return NullCheck.notNull(Math.random());
   }
 
   @Override public String toString()

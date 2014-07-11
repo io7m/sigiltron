@@ -16,6 +16,8 @@
 
 package com.io7m.sigiltron;
 
+import com.io7m.jnull.NullCheck;
+
 /**
  * A completely random rotation.
  */
@@ -32,13 +34,13 @@ public final class SigilRotationFunctionRandom45 implements
 
   }
 
-  @Override public Double getRotation(
+  @SuppressWarnings("boxing") @Override public Double getRotation(
     final Character c)
   {
     final int r = (int) (Math.random() * 8);
     final int d = r * 45;
     System.out.println("rotation: " + d);
-    return Math.toRadians(d);
+    return NullCheck.notNull(Math.toRadians(d));
   }
 
   @Override public String toString()
