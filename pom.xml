@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.sigiltron</groupId>
   <artifactId>io7m-sigiltron</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <packaging>jar</packaging>
   <name>io7m-sigiltron</name>
   <description>Sigil generator</description>
