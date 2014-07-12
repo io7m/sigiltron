@@ -1,10 +1,10 @@
 /*
  * Copyright © 2014 <code@io7m.com> http://io7m.com
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -26,6 +26,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -44,6 +48,7 @@ import javax.swing.filechooser.FileFilter;
 import net.java.dev.designgridlayout.DesignGridLayout;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.apache.batik.swing.JSVGCanvas;
@@ -162,7 +167,6 @@ import com.io7m.jnull.Nullable;
 
   private final JSVGCanvas                           canvas;
   private JPanel                                     controls;
-  private @Nullable SVGDocument                      document;
   private final WeakHashMap<String, Font>            font_cache;
   private final JComboBox<SigilFontFunctionType>     font_function;
   private final JComboBox<String>                    fonts;
@@ -179,8 +183,6 @@ import com.io7m.jnull.Nullable;
     final Container c = this.getContentPane();
 
     this.rlog = NullCheck.notNull(in_log, "Log");
-    this.document = null;
-
     this.font_cache = new WeakHashMap<String, Font>();
 
     this.canvas = new JSVGCanvas();
@@ -203,9 +205,9 @@ import com.io7m.jnull.Nullable;
       @Override public void actionPerformed(
         @Nullable final ActionEvent e)
       {
-        try {
-          assert SigiltronMainWindow.this.document != null;
+        final SigiltronMainWindow sw = SigiltronMainWindow.this;
 
+        try {
           final JFileChooser dialog = new JFileChooser();
           dialog.setMultiSelectionEnabled(false);
           dialog.setFileFilter(new FileFilter() {
@@ -226,14 +228,28 @@ import com.io7m.jnull.Nullable;
           if (r == JFileChooser.APPROVE_OPTION) {
             final File f = dialog.getSelectedFile();
 
-            final SVGGraphics2D g =
-              new SVGGraphics2D(SigiltronMainWindow.this.document);
-            g.stream(f.toString());
+            final SVGDocument d = sw.canvas.getSVGDocument();
+
+            final OutputStreamWriter writer =
+              new OutputStreamWriter(new FileOutputStream(f));
+
+            final Package p = sw.getClass().getPackage();
+            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            final String p_impl = p.getImplementationTitle();
+            final String p_vers = p.getImplementationVersion();
+            writer.append(String.format("<!-- %s %s -->\n", p_impl, p_vers));
+            DOMUtilities.writeDocument(d, writer);
+            writer.flush();
+            writer.close();
           }
         } catch (final HeadlessException x) {
-          SigilErrorBox.showError(SigiltronMainWindow.this.rlog, x);
+          SigilErrorBox.showError(sw.rlog, x);
         } catch (final SVGGraphics2DIOException x) {
-          SigilErrorBox.showError(SigiltronMainWindow.this.rlog, x);
+          SigilErrorBox.showError(sw.rlog, x);
+        } catch (final FileNotFoundException x) {
+          SigilErrorBox.showError(sw.rlog, x);
+        } catch (final IOException x) {
+          SigilErrorBox.showError(sw.rlog, x);
         }
       }
     });
@@ -336,6 +352,5 @@ import com.io7m.jnull.Nullable;
     g.getRoot(root);
 
     this.canvas.setSVGDocument(doc);
-    this.document = doc;
   }
 }
