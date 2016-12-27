@@ -1,0 +1,2 @@
+# sigiltron
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b05b3ccdd0dc407993018cc19bf556bb)](https://www.codacy.com/app/github_79/sigiltron?utm_source=github.com&utm_medium=referral&utm_content=io7m/sigiltron&utm_campaign=badger)
