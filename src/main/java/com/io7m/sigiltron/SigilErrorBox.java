@@ -21,6 +21,7 @@ import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 import net.java.dev.designgridlayout.DesignGridLayout;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -40,6 +41,12 @@ import java.io.StringWriter;
 
 final class SigilErrorBox
 {
+  private static final Logger LOG;
+
+  static {
+    LOG = LoggerFactory.getLogger(SigilErrorBox.class);
+  }
+
   private SigilErrorBox()
   {
     throw new UnreachableCodeException();
@@ -105,7 +112,8 @@ final class SigilErrorBox
     final String message,
     final Throwable e)
   {
-    e.printStackTrace();
+    LOG.debug("exception: ", e);
+
     final JTextArea text = new JTextArea();
     text.setEditable(false);
     text.setText(showStackTraceText(e));
@@ -113,7 +121,6 @@ final class SigilErrorBox
     return showActualErrorBox(title, message, text);
   }
 
-  @SuppressWarnings("null")
   public static JDialog showError(
     final Logger log,
     final Throwable e)
@@ -157,7 +164,6 @@ final class SigilErrorBox
     });
   }
 
-  @SuppressWarnings("null")
   public static JDialog showErrorWithTitle(
     final Logger log,
     final String title,

@@ -55,7 +55,6 @@ public final class SigiltronMain
   {
     SwingUtilities.invokeLater(new Runnable()
     {
-      @SuppressWarnings({"unused", "synthetic-access"})
       @Override
       public void
       run()

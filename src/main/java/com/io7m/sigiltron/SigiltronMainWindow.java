@@ -51,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -58,12 +59,12 @@ import java.util.WeakHashMap;
 final class SigiltronMainWindow extends JFrame
 {
   private static final Logger LOG;
+  private static final long serialVersionUID = 4203471970752993711L;
 
   static {
     LOG = LoggerFactory.getLogger(SigiltronMainWindow.class);
   }
 
-  private static final long serialVersionUID = 4203471970752993711L;
   private final JSVGCanvas canvas;
   private final Map<String, Font> font_cache;
   private final JComboBox<SigilFontFunctionType> font_function;
@@ -95,15 +96,13 @@ final class SigiltronMainWindow extends JFrame
     this.save = new JButton("Save...");
     this.save.setToolTipText("Save a sigil as an SVG image");
     this.save.setEnabled(false);
-    this.save.addActionListener(e -> {
-      this.onWantSave(c);
-    });
+    this.save.addActionListener(e -> this.onWantSave(c));
 
     final JTextField input = new JTextField();
     final JButton input_now = new JButton("Generate");
     input_now.setToolTipText("Generate a sigil!");
     input_now.addActionListener(e -> {
-      final List<Character> cs = new ArrayList<Character>();
+      final List<Character> cs = new ArrayList<>();
       final String text = input.getText();
       for (int index = 0; index < text.length(); ++index) {
         final char ch = text.charAt(index);
@@ -151,60 +150,13 @@ final class SigiltronMainWindow extends JFrame
 
   }
 
-  private void onWantSave(
-    final Container c)
-  {
-    try {
-      final JFileChooser dialog = new JFileChooser();
-      dialog.setMultiSelectionEnabled(false);
-      dialog.setFileFilter(new FileFilter()
-      {
-        @Override
-        public boolean accept(
-          @Nullable final File f)
-        {
-          final File fn = NullCheck.notNull(f, "File");
-          return fn.isDirectory() || fn.getName().endsWith(".svg");
-        }
-
-        @Override
-        public String getDescription()
-        {
-          return "SVG files (*.svg)";
-        }
-      });
-
-      final int r = dialog.showSaveDialog(c);
-      if (r == JFileChooser.APPROVE_OPTION) {
-        final File f = dialog.getSelectedFile();
-
-        final SVGDocument d = this.canvas.getSVGDocument();
-
-        final OutputStreamWriter writer =
-          new OutputStreamWriter(new FileOutputStream(f));
-
-        final Package p = this.getClass().getPackage();
-        writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        final String p_impl = p.getImplementationTitle();
-        final String p_vers = p.getImplementationVersion();
-        writer.append(String.format("<!-- %s %s -->", p_impl, p_vers));
-        writer.append(System.lineSeparator());
-        DOMUtilities.writeDocument(d, writer);
-        writer.flush();
-        writer.close();
-      }
-    } catch (final HeadlessException | IOException x) {
-      SigilErrorBox.showError(LOG, x);
-    }
-  }
-
   private static Iterable<String> getFontList()
   {
     final GraphicsEnvironment ge =
       GraphicsEnvironment.getLocalGraphicsEnvironment();
 
     final String[] fontnames = ge.getAvailableFontFamilyNames();
-    final List<String> rs = new ArrayList<>();
+    final Collection<String> rs = new ArrayList<>();
 
     for (final String name : fontnames) {
       assert name != null;
@@ -298,6 +250,53 @@ final class SigiltronMainWindow extends JFrame
     f.setSelectedItem(default_item);
     f.setToolTipText("A function applied to the given intent");
     return f;
+  }
+
+  private void onWantSave(
+    final Container c)
+  {
+    try {
+      final JFileChooser dialog = new JFileChooser();
+      dialog.setMultiSelectionEnabled(false);
+      dialog.setFileFilter(new FileFilter()
+      {
+        @Override
+        public boolean accept(
+          @Nullable final File f)
+        {
+          final File fn = NullCheck.notNull(f, "File");
+          return fn.isDirectory() || fn.getName().endsWith(".svg");
+        }
+
+        @Override
+        public String getDescription()
+        {
+          return "SVG files (*.svg)";
+        }
+      });
+
+      final int r = dialog.showSaveDialog(c);
+      if (r == JFileChooser.APPROVE_OPTION) {
+        final File f = dialog.getSelectedFile();
+
+        final SVGDocument d = this.canvas.getSVGDocument();
+
+        final OutputStreamWriter writer =
+          new OutputStreamWriter(new FileOutputStream(f));
+
+        final Package p = this.getClass().getPackage();
+        writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        final String p_impl = p.getImplementationTitle();
+        final String p_vers = p.getImplementationVersion();
+        writer.append(String.format("<!-- %s %s -->", p_impl, p_vers));
+        writer.append(System.lineSeparator());
+        DOMUtilities.writeDocument(d, writer);
+        writer.flush();
+        writer.close();
+      }
+    } catch (final HeadlessException | IOException x) {
+      SigilErrorBox.showError(LOG, x);
+    }
   }
 
   private void generateImage(
