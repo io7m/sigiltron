@@ -16,12 +16,11 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jlog.LogUsableType;
-import com.io7m.jlog.LogWritableType;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 import net.java.dev.designgridlayout.DesignGridLayout;
+import org.slf4j.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -116,7 +115,7 @@ final class SigilErrorBox
 
   @SuppressWarnings("null")
   public static JDialog showError(
-    final LogWritableType log,
+    final Logger log,
     final Throwable e)
   {
     final String title = e.getClass().getCanonicalName();
@@ -128,14 +127,14 @@ final class SigilErrorBox
   }
 
   public static void showErrorLater(
-    final LogUsableType log,
+    final Logger log,
     final Throwable e)
   {
     SwingUtilities.invokeLater(() -> showError(log, e));
   }
 
   public static JDialog showErrorWithoutException(
-    final LogWritableType log,
+    final Logger log,
     final String title,
     final String message)
   {
@@ -144,7 +143,7 @@ final class SigilErrorBox
   }
 
   public static void showErrorWithoutExceptionLater(
-    final LogWritableType log,
+    final Logger log,
     final String title,
     final String message)
   {
@@ -160,7 +159,7 @@ final class SigilErrorBox
 
   @SuppressWarnings("null")
   public static JDialog showErrorWithTitle(
-    final LogWritableType log,
+    final Logger log,
     final String title,
     final Throwable e)
   {
@@ -172,7 +171,7 @@ final class SigilErrorBox
   }
 
   public static void showErrorWithTitleLater(
-    final LogUsableType log,
+    final Logger log,
     final String title,
     final Throwable e)
   {

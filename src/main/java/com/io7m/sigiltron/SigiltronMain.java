@@ -16,11 +16,6 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jlog.Log;
-import com.io7m.jlog.LogLevel;
-import com.io7m.jlog.LogPolicyAllOn;
-import com.io7m.jlog.LogType;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -32,10 +27,7 @@ public final class SigiltronMain
 {
   private SigiltronMain()
   {
-    final LogType log =
-      Log.newLog(LogPolicyAllOn.newPolicy(LogLevel.LOG_DEBUG), "sigiltron");
-
-    final SigiltronMainWindow win = new SigiltronMainWindow(log);
+    final SigiltronMainWindow win = new SigiltronMainWindow();
     win.setTitle("Sigiltron");
     win.pack();
     win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

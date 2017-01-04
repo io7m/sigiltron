@@ -16,7 +16,6 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jlog.LogUsableType;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 import net.java.dev.designgridlayout.DesignGridLayout;
@@ -24,6 +23,8 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.swing.JSVGCanvas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -54,26 +55,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-@SuppressWarnings({"boxing", "synthetic-access"})
-final class SigiltronMainWindow extends
-  JFrame
+final class SigiltronMainWindow extends JFrame
 {
+  private static final Logger LOG;
+
+  static {
+    LOG = LoggerFactory.getLogger(SigiltronMainWindow.class);
+  }
+
   private static final long serialVersionUID = 4203471970752993711L;
   private final JSVGCanvas canvas;
   private final Map<String, Font> font_cache;
   private final JComboBox<SigilFontFunctionType> font_function;
   private final JComboBox<SigilTextFunctionType> function;
-  private final LogUsableType rlog;
   private final JComboBox<SigilRotationFunctionType> rotation_function;
   private final JButton save;
   private final JFormattedTextField spread;
   private final JComboBox<SigilSpreadFunctionType> spread_function;
-  SigiltronMainWindow(
-    final LogUsableType in_log)
+
+  SigiltronMainWindow()
   {
     final Container c = this.getContentPane();
 
-    this.rlog = NullCheck.notNull(in_log, "Log");
     this.font_cache = new WeakHashMap<>();
 
     this.canvas = new JSVGCanvas();
@@ -191,7 +194,7 @@ final class SigiltronMainWindow extends
         writer.close();
       }
     } catch (final HeadlessException | IOException x) {
-      SigilErrorBox.showError(this.rlog, x);
+      SigilErrorBox.showError(LOG, x);
     }
   }
 
