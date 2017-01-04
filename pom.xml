@@ -6,24 +6,24 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.sigiltron</groupId>
-  <artifactId>io7m-sigiltron</artifactId>
+  <artifactId>sigiltron</artifactId>
   <version>0.1.1</version>
   <packaging>jar</packaging>
-  <name>io7m-sigiltron</name>
+  <name>sigiltron</name>
   <description>Sigil generator</description>
-  <url>http://mvn.io7m.com/sigiltron/</url>
+  <url>http://github.com/io7m/sigiltron/</url>
 
   <licenses>
     <license>
       <name>ISC License</name>
-      <url>http://www.opensource.org/licenses/isc-license.txt</url>
+      <url>http://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
 
   <scm>
-    <url>http://fossil.io7m.com/repo.cgi/io7m-sigiltron</url>
-    <connection>scm:http://fossil.io7m.com/repo.cgi/io7m-sigiltron</connection>
-    <developerConnection>scm:http://fossil.io7m.com/repo.cgi/io7m-sigiltron</developerConnection>
+    <url>https://github.com/io7m/sigiltron</url>
+    <connection>scm:git:https://github.com/io7m/sigiltron</connection>
+    <developerConnection>scm:git:https://github.com/io7m/sigiltron</developerConnection>
   </scm>
 
   <developers>
@@ -36,20 +36,29 @@
   </developers>
 
   <issueManagement>
-    <url>http://fossil.io7m.com/repo.cgi/io7m-sigiltron</url>
-    <system>Fossil</system>
+    <url>http://github.com/io7m/sigiltron/issues</url>
+    <system>GitHub Issues</system>
   </issueManagement>
 
   <distributionManagement>
     <site>
-      <id>io7m</id>
-      <name>io7m.com</name>
-      <url>http://mvn.io7m.com/sigiltron/</url>
+      <id>GitHub</id>
+      <name>GitHub</name>
+      <url>http://io7m.github.io/sigiltron</url>
     </site>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
   </distributionManagement>
 
+  <ciManagement>
+    <system>Travis CI</system>
+    <url>https://travis-ci.org/io7m/sigiltron</url>
+  </ciManagement>
+
   <prerequisites>
-    <maven>2.2.1</maven>
+    <maven>3.0.4</maven>
   </prerequisites>
 
   <properties>
@@ -133,37 +142,37 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.15</version>
+        <version>2.19.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
+        <version>3.0.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.8.2</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5.2</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
+        <version>3.0.0</version>
       </plugin>
 
-      <!-- Require JDK >= 1.6 -->
+      <!-- Require JDK >= 1.8 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.5.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
 
@@ -171,7 +180,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.11</version>
+        <version>2.17</version>
         <executions>
           <execution>
             <id>validate</id>
@@ -194,7 +203,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.0.0</version>
         <executions>
           <!-- Produce custom manifest in jar files -->
           <execution>
@@ -212,7 +221,7 @@
                   <Built-By>io7m</Built-By>
                 </manifestEntries>
                 <manifestSection>
-                  <name>com/io7m/sigiltron</name>
+                  <name>com/io7m/mkcsr</name>
                   <manifestEntries>
                     <Sealed>true</Sealed>
                   </manifestEntries>
@@ -234,12 +243,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
-               <goal>jar</goal>
+              <goal>jar</goal>
             </goals>
           </execution>
         </executions>
@@ -249,28 +258,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
+        <version>2.10.3</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
             <phase>package</phase>
             <goals>
-               <goal>jar</goal>
-            </goals>
-         </execution>
-        </executions>
-      </plugin>
-
-      <!-- Enable code coverage for unit tests -->
-      <plugin>
-        <groupId>org.sonatype.maven.plugin</groupId>
-        <artifactId>emma-maven-plugin</artifactId>
-        <version>1.2</version>
-        <executions>
-          <execution>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>instrument</goal>
+              <goal>jar</goal>
             </goals>
           </execution>
         </executions>
@@ -308,6 +302,19 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Sonatype OSSRH deployment -->
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>sonatype-nexus-staging</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
     </plugins>
 
     <!-- Allow deployment over ssh -->
@@ -318,75 +325,6 @@
         <version>2.2</version>
       </extension>
     </extensions>
-    
-    <!-- Mark certain plugins as ignored in Eclipse. Does not affect the build. -->
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.sonatype.maven.plugin</groupId>
-                    <artifactId>emma-maven-plugin</artifactId>
-                    <versionRange>[1.2,)</versionRange>
-                    <goals>
-                      <goal>instrument</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>xml-maven-plugin</artifactId>
-                    <versionRange>[1.0,)</versionRange>
-                    <goals>
-                      <goal>transform</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.io7m.saxon-plugin</groupId>
-                    <artifactId>io7m-saxon-plugin</artifactId>
-                    <versionRange>[1.0.0,)</versionRange>
-                    <goals>
-                      <goal>transform</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <versionRange>[2.11,)</versionRange>
-                    <goals>
-                      <goal>check</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <!-- Sign artifacts when deploying to io7m -->
@@ -403,7 +341,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.4</version>
+            <version>1.6</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
