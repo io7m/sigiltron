@@ -23,8 +23,8 @@ package com.io7m.sigiltron;
 public interface SigilRotationFunctionType
 {
   /**
-   * @param c
-   *          The character.
+   * @param c The character.
+   *
    * @return A rotation value (in radians).
    */
 

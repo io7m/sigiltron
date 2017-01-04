@@ -17,6 +17,8 @@
 package com.io7m.sigiltron;
 
 import com.io7m.jnull.NullCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A completely random rotation.
@@ -25,6 +27,12 @@ import com.io7m.jnull.NullCheck;
 public final class SigilRotationFunctionRandom45 implements
   SigilRotationFunctionType
 {
+  private static final Logger LOG;
+
+  static {
+    LOG = LoggerFactory.getLogger(SigilRotationFunctionRandom45.class);
+  }
+
   /**
    * Construct a rotation function.
    */
@@ -34,16 +42,18 @@ public final class SigilRotationFunctionRandom45 implements
 
   }
 
-  @SuppressWarnings("boxing") @Override public Double getRotation(
+  @Override
+  public Double getRotation(
     final Character c)
   {
-    final int r = (int) (Math.random() * 8);
+    final int r = (int) (Math.random() * 8.0);
     final int d = r * 45;
-    System.out.println("rotation: " + d);
-    return NullCheck.notNull(Math.toRadians(d));
+    LOG.trace("rotation: {}", Integer.valueOf(d));
+    return NullCheck.notNull(Double.valueOf(Math.toRadians((double) d)));
   }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Random 45° increments";
   }

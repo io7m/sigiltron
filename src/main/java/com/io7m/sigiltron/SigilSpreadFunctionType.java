@@ -23,8 +23,8 @@ package com.io7m.sigiltron;
 public interface SigilSpreadFunctionType
 {
   /**
-   * @param size
-   *          The reference size.
+   * @param size The reference size.
+   *
    * @return The spread size.
    */
 

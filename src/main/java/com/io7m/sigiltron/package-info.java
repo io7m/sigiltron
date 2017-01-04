@@ -18,5 +18,6 @@
  * The sigiltron.
  */
 
-@com.io7m.jnull.NonNullByDefault package com.io7m.sigiltron;
+@com.io7m.jnull.NonNullByDefault
+package com.io7m.sigiltron;
 

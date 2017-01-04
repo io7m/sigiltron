@@ -32,13 +32,16 @@ public final class SigilSpreadFunctionRandom implements
 
   }
 
-  @SuppressWarnings("boxing") @Override public Integer getSpread(
+  @SuppressWarnings("boxing")
+  @Override
+  public Integer getSpread(
     final int size)
   {
     return (int) (Math.random() * size);
   }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Random based on the given spread";
   }
