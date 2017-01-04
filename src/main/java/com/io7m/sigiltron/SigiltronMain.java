@@ -28,10 +28,20 @@ public final class SigiltronMain
   private SigiltronMain()
   {
     final SigiltronMainWindow win = new SigiltronMainWindow();
-    win.setTitle("Sigiltron");
+    win.setTitle(getVersion());
     win.pack();
     win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     win.setVisible(true);
+  }
+
+  private static String getVersion()
+  {
+    final String s = SigiltronMain.class.getPackage().getImplementationVersion();
+    if (s == null) {
+      return "sigiltron";
+    }
+
+    return "sigiltron " + s;
   }
 
   /**
