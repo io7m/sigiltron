@@ -16,23 +16,17 @@
 
 package com.io7m.sigiltron;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
+import com.io7m.jlog.LogUsableType;
+import com.io7m.jnull.NullCheck;
+import com.io7m.jnull.Nullable;
+import net.java.dev.designgridlayout.DesignGridLayout;
+import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.dom.util.DOMUtilities;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.swing.JSVGCanvas;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Element;
+import org.w3c.dom.svg.SVGDocument;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -44,34 +38,170 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.geom.AffineTransform;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-import net.java.dev.designgridlayout.DesignGridLayout;
-
-import org.apache.batik.dom.svg.SVGDOMImplementation;
-import org.apache.batik.dom.util.DOMUtilities;
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.svggen.SVGGraphics2DIOException;
-import org.apache.batik.swing.JSVGCanvas;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Element;
-import org.w3c.dom.svg.SVGDocument;
-
-import com.io7m.jlog.LogUsableType;
-import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
-
-@SuppressWarnings({ "boxing", "synthetic-access" }) final class SigiltronMainWindow extends
+@SuppressWarnings({"boxing", "synthetic-access"})
+final class SigiltronMainWindow extends
   JFrame
 {
   private static final long serialVersionUID = 4203471970752993711L;
+  private final JSVGCanvas canvas;
+  private final Map<String, Font> font_cache;
+  private final JComboBox<SigilFontFunctionType> font_function;
+  private final JComboBox<SigilTextFunctionType> function;
+  private final LogUsableType rlog;
+  private final JComboBox<SigilRotationFunctionType> rotation_function;
+  private final JButton save;
+  private final JFormattedTextField spread;
+  private final JComboBox<SigilSpreadFunctionType> spread_function;
+  SigiltronMainWindow(
+    final LogUsableType in_log)
+  {
+    final Container c = this.getContentPane();
 
-  private static List<String> getFontList()
+    this.rlog = NullCheck.notNull(in_log, "Log");
+    this.font_cache = new WeakHashMap<>();
+
+    this.canvas = new JSVGCanvas();
+    this.canvas.setPreferredSize(new Dimension(640, 480));
+    this.canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
+    this.function = newTextFunctionSelector();
+    final JComboBox<String> fonts = newFontSelector();
+    this.font_function =
+      newFontFunctionSelector(fonts);
+    this.rotation_function =
+      newRotationFunctionSelector();
+    this.spread = newSpreadSelector();
+    this.spread_function = newSpreadFunctionSelector();
+
+    this.save = new JButton("Save...");
+    this.save.setToolTipText("Save a sigil as an SVG image");
+    this.save.setEnabled(false);
+    this.save.addActionListener(e -> {
+      this.onWantSave(c);
+    });
+
+    final JTextField input = new JTextField();
+    final JButton input_now = new JButton("Generate");
+    input_now.setToolTipText("Generate a sigil!");
+    input_now.addActionListener(e -> {
+      final List<Character> cs = new ArrayList<Character>();
+      final String text = input.getText();
+      for (int index = 0; index < text.length(); ++index) {
+        final char ch = text.charAt(index);
+        cs.add(new Character(ch));
+      }
+
+      final SigiltronMainWindow sw = SigiltronMainWindow.this;
+      final SigilTextFunctionType f =
+        (SigilTextFunctionType) sw.function.getSelectedItem();
+      final SigilFontFunctionType ff =
+        (SigilFontFunctionType) sw.font_function.getSelectedItem();
+      final SigilRotationFunctionType rf =
+        (SigilRotationFunctionType) sw.rotation_function.getSelectedItem();
+      final SigilSpreadFunctionType sf =
+        (SigilSpreadFunctionType) sw.spread_function.getSelectedItem();
+
+      assert ff != null;
+      assert rf != null;
+      assert sf != null;
+
+      sw.generateImage(f.process(cs), ff, rf, sf);
+      sw.save.setEnabled(true);
+    });
+
+    final JPanel controls;
+    {
+      controls = new JPanel();
+      final DesignGridLayout dg = new DesignGridLayout(controls);
+      dg.row().grid(new JLabel("Text function")).add(this.function);
+      dg.row().grid(new JLabel("Font function")).add(this.font_function);
+      dg
+        .row()
+        .grid(new JLabel("Rotation function"))
+        .add(this.rotation_function);
+      dg.row().grid(new JLabel("Font")).add(fonts);
+      dg.row().grid(new JLabel("Spread")).add(this.spread);
+      dg.row().grid(new JLabel("Spread function")).add(this.spread_function);
+      dg.row().grid(new JLabel("Intent")).add(input, 3).add(input_now);
+      dg.row().grid().add(this.save);
+    }
+
+    final DesignGridLayout dg = new DesignGridLayout(c);
+    dg.row().grid().add(this.canvas);
+    dg.row().grid().add(controls);
+
+  }
+
+  private void onWantSave(
+    final Container c)
+  {
+    try {
+      final JFileChooser dialog = new JFileChooser();
+      dialog.setMultiSelectionEnabled(false);
+      dialog.setFileFilter(new FileFilter()
+      {
+        @Override
+        public boolean accept(
+          @Nullable final File f)
+        {
+          final File fn = NullCheck.notNull(f, "File");
+          return fn.isDirectory() || fn.getName().endsWith(".svg");
+        }
+
+        @Override
+        public String getDescription()
+        {
+          return "SVG files (*.svg)";
+        }
+      });
+
+      final int r = dialog.showSaveDialog(c);
+      if (r == JFileChooser.APPROVE_OPTION) {
+        final File f = dialog.getSelectedFile();
+
+        final SVGDocument d = this.canvas.getSVGDocument();
+
+        final OutputStreamWriter writer =
+          new OutputStreamWriter(new FileOutputStream(f));
+
+        final Package p = this.getClass().getPackage();
+        writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        final String p_impl = p.getImplementationTitle();
+        final String p_vers = p.getImplementationVersion();
+        writer.append(String.format("<!-- %s %s -->", p_impl, p_vers));
+        writer.append(System.lineSeparator());
+        DOMUtilities.writeDocument(d, writer);
+        writer.flush();
+        writer.close();
+      }
+    } catch (final HeadlessException | IOException x) {
+      SigilErrorBox.showError(this.rlog, x);
+    }
+  }
+
+  private static Iterable<String> getFontList()
   {
     final GraphicsEnvironment ge =
       GraphicsEnvironment.getLocalGraphicsEnvironment();
 
     final String[] fontnames = ge.getAvailableFontFamilyNames();
-    final List<String> rs = new ArrayList<String>();
+    final List<String> rs = new ArrayList<>();
 
     for (final String name : fontnames) {
       assert name != null;
@@ -90,52 +220,53 @@ import com.io7m.jnull.Nullable;
     final JComboBox<String> fonts)
   {
     final JComboBox<SigilFontFunctionType> ff =
-      new JComboBox<SigilFontFunctionType>();
+      new JComboBox<>();
     ff.addItem(new SigilFontFunctionSelected(fonts));
-    final SigilFontFunctionRandom default_item =
+    final SigilFontFunctionType default_item =
       new SigilFontFunctionRandom(fonts);
     ff.addItem(default_item);
     ff.setSelectedItem(default_item);
     ff
-      .setToolTipText("A function that decides the font to use for each character");
+      .setToolTipText(
+        "A function that decides the font to use for each character");
     return ff;
   }
 
   private static JComboBox<String> newFontSelector()
   {
-    final JComboBox<String> f = new JComboBox<String>();
-    for (final String name : SigiltronMainWindow.getFontList()) {
+    final JComboBox<String> f = new JComboBox<>();
+    for (final String name : getFontList()) {
       f.addItem(name);
     }
     f
-      .setToolTipText("The font to use for rendering, if the font function allows it");
+      .setToolTipText(
+        "The font to use for rendering, if the font function allows it");
     return f;
   }
 
-  private static
-    JComboBox<SigilRotationFunctionType>
-    newRotationFunctionSelector()
+  private static JComboBox<SigilRotationFunctionType>
+  newRotationFunctionSelector()
   {
     final JComboBox<SigilRotationFunctionType> rf =
-      new JComboBox<SigilRotationFunctionType>();
+      new JComboBox<>();
     rf.addItem(new SigilRotationFunctionRandom());
-    final SigilRotationFunctionRandom45 default_item =
+    final SigilRotationFunctionType default_item =
       new SigilRotationFunctionRandom45();
     rf.addItem(default_item);
     rf.setSelectedItem(default_item);
     rf
-      .setToolTipText("A function that decides how much rotation to apply to each character");
+      .setToolTipText(
+        "A function that decides how much rotation to apply to each character");
     return rf;
   }
 
-  private static
-    JComboBox<SigilSpreadFunctionType>
-    newSpreadFunctionSelector()
+  private static JComboBox<SigilSpreadFunctionType>
+  newSpreadFunctionSelector()
   {
     final JComboBox<SigilSpreadFunctionType> sf =
-      new JComboBox<SigilSpreadFunctionType>();
+      new JComboBox<>();
     sf.addItem(new SigilSpreadFunctionExact());
-    final SigilSpreadFunctionRandom default_item =
+    final SigilSpreadFunctionType default_item =
       new SigilSpreadFunctionRandom();
     sf.addItem(default_item);
     sf.setSelectedItem(default_item);
@@ -148,16 +279,17 @@ import com.io7m.jnull.Nullable;
     final JFormattedTextField s = new JFormattedTextField();
     s.setValue(Integer.valueOf(250));
     s
-      .setToolTipText("How far out each character will be pushed from the center of the canvas");
+      .setToolTipText(
+        "How far out each character will be pushed from the center of the canvas");
     return s;
   }
 
   private static JComboBox<SigilTextFunctionType> newTextFunctionSelector()
   {
     final JComboBox<SigilTextFunctionType> f =
-      new JComboBox<SigilTextFunctionType>();
+      new JComboBox<>();
     f.addItem(new SigilTextFunctionRemoveDuplicates());
-    final SigilTextFunctionIdentity default_item =
+    final SigilTextFunctionType default_item =
       new SigilTextFunctionIdentity();
     f.addItem(default_item);
     f.setSelectedItem(default_item);
@@ -165,152 +297,8 @@ import com.io7m.jnull.Nullable;
     return f;
   }
 
-  private final JSVGCanvas                           canvas;
-  private JPanel                                     controls;
-  private final WeakHashMap<String, Font>            font_cache;
-  private final JComboBox<SigilFontFunctionType>     font_function;
-  private final JComboBox<String>                    fonts;
-  private final JComboBox<SigilTextFunctionType>     function;
-  private final LogUsableType                        rlog;
-  private final JComboBox<SigilRotationFunctionType> rotation_function;
-  private final JButton                              save;
-  private final JFormattedTextField                  spread;
-  private JComboBox<SigilSpreadFunctionType>         spread_function;
-
-  SigiltronMainWindow(
-    final LogUsableType in_log)
-  {
-    final Container c = this.getContentPane();
-
-    this.rlog = NullCheck.notNull(in_log, "Log");
-    this.font_cache = new WeakHashMap<String, Font>();
-
-    this.canvas = new JSVGCanvas();
-    this.canvas.setPreferredSize(new Dimension(640, 480));
-    this.canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-
-    this.function = SigiltronMainWindow.newTextFunctionSelector();
-    this.fonts = SigiltronMainWindow.newFontSelector();
-    this.font_function =
-      SigiltronMainWindow.newFontFunctionSelector(this.fonts);
-    this.rotation_function =
-      SigiltronMainWindow.newRotationFunctionSelector();
-    this.spread = SigiltronMainWindow.newSpreadSelector();
-    this.spread_function = SigiltronMainWindow.newSpreadFunctionSelector();
-
-    this.save = new JButton("Save...");
-    this.save.setToolTipText("Save a sigil as an SVG image");
-    this.save.setEnabled(false);
-    this.save.addActionListener(new ActionListener() {
-      @Override public void actionPerformed(
-        @Nullable final ActionEvent e)
-      {
-        final SigiltronMainWindow sw = SigiltronMainWindow.this;
-
-        try {
-          final JFileChooser dialog = new JFileChooser();
-          dialog.setMultiSelectionEnabled(false);
-          dialog.setFileFilter(new FileFilter() {
-            @Override public boolean accept(
-              @Nullable final File f)
-            {
-              final File fn = NullCheck.notNull(f, "File");
-              return fn.isDirectory() || fn.getName().endsWith(".svg");
-            }
-
-            @Override public String getDescription()
-            {
-              return "SVG files (*.svg)";
-            }
-          });
-
-          final int r = dialog.showSaveDialog(c);
-          if (r == JFileChooser.APPROVE_OPTION) {
-            final File f = dialog.getSelectedFile();
-
-            final SVGDocument d = sw.canvas.getSVGDocument();
-
-            final OutputStreamWriter writer =
-              new OutputStreamWriter(new FileOutputStream(f));
-
-            final Package p = sw.getClass().getPackage();
-            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            final String p_impl = p.getImplementationTitle();
-            final String p_vers = p.getImplementationVersion();
-            writer.append(String.format("<!-- %s %s -->\n", p_impl, p_vers));
-            DOMUtilities.writeDocument(d, writer);
-            writer.flush();
-            writer.close();
-          }
-        } catch (final HeadlessException x) {
-          SigilErrorBox.showError(sw.rlog, x);
-        } catch (final SVGGraphics2DIOException x) {
-          SigilErrorBox.showError(sw.rlog, x);
-        } catch (final FileNotFoundException x) {
-          SigilErrorBox.showError(sw.rlog, x);
-        } catch (final IOException x) {
-          SigilErrorBox.showError(sw.rlog, x);
-        }
-      }
-    });
-
-    final JTextField input = new JTextField();
-    final JButton input_now = new JButton("Generate");
-    input_now.setToolTipText("Generate a sigil!");
-    input_now.addActionListener(new ActionListener() {
-      @Override public void actionPerformed(
-        @Nullable final ActionEvent e)
-      {
-        final List<Character> cs = new ArrayList<Character>();
-        final String text = input.getText();
-        for (int index = 0; index < text.length(); ++index) {
-          final char ch = text.charAt(index);
-          cs.add(new Character(ch));
-        }
-
-        final SigiltronMainWindow sw = SigiltronMainWindow.this;
-        final SigilTextFunctionType f =
-          (SigilTextFunctionType) sw.function.getSelectedItem();
-        final SigilFontFunctionType ff =
-          (SigilFontFunctionType) sw.font_function.getSelectedItem();
-        final SigilRotationFunctionType rf =
-          (SigilRotationFunctionType) sw.rotation_function.getSelectedItem();
-        final SigilSpreadFunctionType sf =
-          (SigilSpreadFunctionType) sw.spread_function.getSelectedItem();
-
-        assert ff != null;
-        assert rf != null;
-        assert sf != null;
-
-        sw.generateImage(f.process(cs), ff, rf, sf);
-        sw.save.setEnabled(true);
-      }
-    });
-
-    {
-      this.controls = new JPanel();
-      final DesignGridLayout dg = new DesignGridLayout(this.controls);
-      dg.row().grid(new JLabel("Text function")).add(this.function);
-      dg.row().grid(new JLabel("Font function")).add(this.font_function);
-      dg
-        .row()
-        .grid(new JLabel("Rotation function"))
-        .add(this.rotation_function);
-      dg.row().grid(new JLabel("Font")).add(this.fonts);
-      dg.row().grid(new JLabel("Spread")).add(this.spread);
-      dg.row().grid(new JLabel("Spread function")).add(this.spread_function);
-      dg.row().grid(new JLabel("Intent")).add(input, 3).add(input_now);
-      dg.row().grid().add(this.save);
-    }
-
-    final DesignGridLayout dg = new DesignGridLayout(c);
-    dg.row().grid().add(this.canvas);
-    dg.row().grid().add(this.controls);
-
-  }
-
   private void generateImage(
-    final List<Character> cs,
+    final Iterable<Character> cs,
     final SigilFontFunctionType ff,
     final SigilRotationFunctionType rf,
     final SigilSpreadFunctionType sf)
@@ -344,8 +332,9 @@ import com.io7m.jnull.Nullable;
       this.font_cache.put(font_name, font);
 
       g.setFont(font);
-      g.rotate(rf.getRotation(c));
-      g.drawString("" + c, 0, sf.getSpread((Integer) this.spread.getValue()));
+      g.rotate(rf.getRotation(c).doubleValue());
+      g.drawString("" + c, 0,
+                   sf.getSpread(((Integer) this.spread.getValue()).intValue()).intValue());
     }
 
     final Element root = doc.getDocumentElement();

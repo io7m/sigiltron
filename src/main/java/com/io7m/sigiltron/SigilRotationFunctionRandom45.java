@@ -34,7 +34,9 @@ public final class SigilRotationFunctionRandom45 implements
 
   }
 
-  @SuppressWarnings("boxing") @Override public Double getRotation(
+  @SuppressWarnings("boxing")
+  @Override
+  public Double getRotation(
     final Character c)
   {
     final int r = (int) (Math.random() * 8);
@@ -43,7 +45,8 @@ public final class SigilRotationFunctionRandom45 implements
     return NullCheck.notNull(Math.toRadians(d));
   }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Random 45° increments";
   }

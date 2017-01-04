@@ -16,18 +16,22 @@
 
 package com.io7m.sigiltron;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
+import com.io7m.junreachable.UnreachableCodeException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-
-import com.io7m.junreachable.UnreachableCodeException;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
 final class SigilIcons
 {
+  private SigilIcons()
+  {
+    throw new UnreachableCodeException();
+  }
+
   static JLabel makeErrorIcon()
     throws IOException
   {
@@ -36,10 +40,5 @@ final class SigilIcons
     final BufferedImage image = ImageIO.read(stream);
     stream.close();
     return new JLabel(new ImageIcon(image));
-  }
-
-  private SigilIcons()
-  {
-    throw new UnreachableCodeException();
   }
 }

@@ -16,12 +16,11 @@
 
 package com.io7m.sigiltron;
 
-import java.awt.event.WindowEvent;
+import com.io7m.junreachable.UnreachableCodeException;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-import com.io7m.junreachable.UnreachableCodeException;
+import java.awt.event.WindowEvent;
 
 /**
  * Window utility functions.
@@ -29,6 +28,11 @@ import com.io7m.junreachable.UnreachableCodeException;
 
 final class SigilWindowUtilities
 {
+  private SigilWindowUtilities()
+  {
+    throw new UnreachableCodeException();
+  }
+
   /**
    * Send a {@link WindowEvent#WINDOW_CLOSING} event to the given dialog.
    */
@@ -50,10 +54,5 @@ final class SigilWindowUtilities
   {
     final WindowEvent ev = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
     frame.dispatchEvent(ev);
-  }
-
-  private SigilWindowUtilities()
-  {
-    throw new UnreachableCodeException();
   }
 }

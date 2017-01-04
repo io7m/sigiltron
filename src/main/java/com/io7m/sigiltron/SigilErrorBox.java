@@ -16,12 +16,12 @@
 
 package com.io7m.sigiltron;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.io7m.jlog.LogUsableType;
+import com.io7m.jlog.LogWritableType;
+import com.io7m.jnull.NullCheck;
+import com.io7m.jnull.Nullable;
+import com.io7m.junreachable.UnreachableCodeException;
+import net.java.dev.designgridlayout.DesignGridLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -30,13 +30,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-
-import net.java.dev.designgridlayout.DesignGridLayout;
-
-import com.io7m.jlog.LogUsableType;
-import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
-import com.io7m.junreachable.UnreachableCodeException;
+import java.awt.Dimension;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Error message functions.
@@ -44,6 +41,11 @@ import com.io7m.junreachable.UnreachableCodeException;
 
 final class SigilErrorBox
 {
+  private SigilErrorBox()
+  {
+    throw new UnreachableCodeException();
+  }
+
   private static JDialog showActualErrorBox(
     final String title,
     final String message,
@@ -54,18 +56,12 @@ final class SigilErrorBox
     d.setMinimumSize(new Dimension(320, 0));
 
     final JButton ok = new JButton("OK");
-    ok.addActionListener(new ActionListener() {
-      @Override public void actionPerformed(
-        final @Nullable ActionEvent _)
-      {
-        SigilWindowUtilities.closeDialog(d);
-      }
-    });
+    ok.addActionListener(e -> SigilWindowUtilities.closeDialog(d));
 
     JLabel icon = null;
     try {
       icon = SigilIcons.makeErrorIcon();
-    } catch (final IOException _) {
+    } catch (final IOException ex) {
       // Who cares?
     }
 
@@ -113,18 +109,19 @@ final class SigilErrorBox
     e.printStackTrace();
     final JTextArea text = new JTextArea();
     text.setEditable(false);
-    text.setText(SigilErrorBox.showStackTraceText(e));
+    text.setText(showStackTraceText(e));
 
-    return SigilErrorBox.showActualErrorBox(title, message, text);
+    return showActualErrorBox(title, message, text);
   }
 
-  @SuppressWarnings("null") public static JDialog showError(
-    final LogUsableType log,
+  @SuppressWarnings("null")
+  public static JDialog showError(
+    final LogWritableType log,
     final Throwable e)
   {
     final String title = e.getClass().getCanonicalName();
-    log.error(SigilErrorBox.showStackTraceText(e));
-    return SigilErrorBox.showActualErrorWithException(
+    log.error(showStackTraceText(e));
+    return showActualErrorWithException(
       title,
       e.getMessage(),
       e);
@@ -134,48 +131,41 @@ final class SigilErrorBox
     final LogUsableType log,
     final Throwable e)
   {
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override public void run()
-      {
-        SigilErrorBox.showError(log, e);
-      }
-    });
+    SwingUtilities.invokeLater(() -> showError(log, e));
   }
 
   public static JDialog showErrorWithoutException(
-    final LogUsableType log,
+    final LogWritableType log,
     final String title,
     final String message)
   {
     log.error(title + ": " + message);
-    return SigilErrorBox.showActualErrorBox(title, message, null);
+    return showActualErrorBox(title, message, null);
   }
 
   public static void showErrorWithoutExceptionLater(
-    final LogUsableType log,
+    final LogWritableType log,
     final String title,
     final String message)
   {
     log.error(title + ": " + message);
 
-    SwingUtilities.invokeLater(new Runnable() {
-      @SuppressWarnings("synthetic-access") @Override public void run()
-      {
-        final JTextArea text = new JTextArea();
-        text.setEditable(false);
-        text.setText(message);
-        SigilErrorBox.showActualErrorBox(title, message, text);
-      }
+    SwingUtilities.invokeLater(() -> {
+      final JTextArea text = new JTextArea();
+      text.setEditable(false);
+      text.setText(message);
+      showActualErrorBox(title, message, text);
     });
   }
 
-  @SuppressWarnings("null") public static JDialog showErrorWithTitle(
-    final LogUsableType log,
+  @SuppressWarnings("null")
+  public static JDialog showErrorWithTitle(
+    final LogWritableType log,
     final String title,
     final Throwable e)
   {
-    log.error(SigilErrorBox.showStackTraceText(e));
-    return SigilErrorBox.showActualErrorWithException(
+    log.error(showStackTraceText(e));
+    return showActualErrorWithException(
       title,
       e.getMessage(),
       e);
@@ -186,28 +176,21 @@ final class SigilErrorBox
     final String title,
     final Throwable e)
   {
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override public void run()
-      {
-        SigilErrorBox.showErrorWithTitle(log, title, e);
-      }
-    });
+    SwingUtilities.invokeLater(() -> showErrorWithTitle(log, title, e));
   }
 
   private static String showStackTraceText(
     final Throwable e)
   {
-    final StringWriter writer = new StringWriter();
-    writer.append(e.getMessage());
-    writer.append("\n");
-    writer.append("\n");
+    try (final StringWriter writer = new StringWriter()) {
+      writer.append(e.getMessage());
+      writer.append(System.lineSeparator());
+      writer.append(System.lineSeparator());
 
-    e.printStackTrace(new PrintWriter(writer));
-    return NullCheck.notNull(writer.toString());
-  }
-
-  private SigilErrorBox()
-  {
-    throw new UnreachableCodeException();
+      e.printStackTrace(new PrintWriter(writer));
+      return NullCheck.notNull(writer.toString());
+    } catch (final IOException e1) {
+      throw new UnreachableCodeException(e1);
+    }
   }
 }

@@ -34,13 +34,15 @@ public final class SigilSpreadFunctionExact implements
 
   }
 
-  @Override public Integer getSpread(
+  @Override
+  public Integer getSpread(
     final int size)
   {
     return NullCheck.notNull(Integer.valueOf(size));
   }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Exact";
   }

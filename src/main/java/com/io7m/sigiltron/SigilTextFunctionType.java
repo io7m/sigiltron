@@ -27,8 +27,8 @@ public interface SigilTextFunctionType
   /**
    * Process the given characters.
    *
-   * @param cs
-   *          The characters.
+   * @param cs The characters.
+   *
    * @return Processed characters.
    */
 

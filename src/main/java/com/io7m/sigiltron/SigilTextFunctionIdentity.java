@@ -33,13 +33,15 @@ public final class SigilTextFunctionIdentity implements SigilTextFunctionType
 
   }
 
-  @Override public List<Character> process(
+  @Override
+  public List<Character> process(
     final List<Character> cs)
-    {
+  {
     return cs;
-    }
+  }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Identity";
   }

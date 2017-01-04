@@ -23,10 +23,9 @@ package com.io7m.sigiltron;
 public interface SigilFontFunctionType
 {
   /**
-   * @param c
-   *          A character
-   * @param size
-   *          The font size
+   * @param c    A character
+   * @param size The font size
+   *
    * @return A font string for the given character.
    */
 

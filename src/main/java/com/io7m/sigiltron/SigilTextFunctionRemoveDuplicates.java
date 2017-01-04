@@ -17,16 +17,16 @@
 package com.io7m.sigiltron;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A function that removes duplicate characters.
  */
 
 public final class SigilTextFunctionRemoveDuplicates implements
-SigilTextFunctionType
+  SigilTextFunctionType
 {
   /**
    * Construct a function.
@@ -37,24 +37,26 @@ SigilTextFunctionType
 
   }
 
-  @Override public List<Character> process(
+  @Override
+  public List<Character> process(
     final List<Character> cs)
-    {
-    final Set<Character> m = new HashSet<Character>();
-    final List<Character> xs = new ArrayList<Character>();
+  {
+    final Collection<Character> m = new HashSet<>();
+    final List<Character> xs = new ArrayList<>();
 
     for (int index = 0; index < cs.size(); ++index) {
       final Character c = cs.get(index);
-      if (m.contains(c) == false) {
+      if (!m.contains(c)) {
         xs.add(c);
       }
       m.add(c);
     }
 
     return xs;
-    }
+  }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Remove duplicates";
   }

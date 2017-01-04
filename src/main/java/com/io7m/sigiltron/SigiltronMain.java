@@ -16,13 +16,13 @@
 
 package com.io7m.sigiltron;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import com.io7m.jlog.Log;
 import com.io7m.jlog.LogLevel;
 import com.io7m.jlog.LogPolicyAllOn;
 import com.io7m.jlog.LogType;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  * Main program.
@@ -30,26 +30,6 @@ import com.io7m.jlog.LogType;
 
 public final class SigiltronMain
 {
-  /**
-   * Main function.
-   *
-   * @param args
-   *          Command line arguments.
-   */
-
-  public static void main(
-    final String[] args)
-  {
-    SwingUtilities.invokeLater(new Runnable() {
-      @SuppressWarnings({ "unused", "synthetic-access" }) @Override public
-        void
-        run()
-      {
-        new SigiltronMain();
-      }
-    });
-  }
-
   private SigiltronMain()
   {
     final LogType log =
@@ -60,5 +40,26 @@ public final class SigiltronMain
     win.pack();
     win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     win.setVisible(true);
+  }
+
+  /**
+   * Main function.
+   *
+   * @param args Command line arguments.
+   */
+
+  public static void main(
+    final String[] args)
+  {
+    SwingUtilities.invokeLater(new Runnable()
+    {
+      @SuppressWarnings({"unused", "synthetic-access"})
+      @Override
+      public void
+      run()
+      {
+        new SigiltronMain();
+      }
+    });
   }
 }

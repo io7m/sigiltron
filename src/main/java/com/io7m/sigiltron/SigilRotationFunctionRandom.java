@@ -34,13 +34,16 @@ public final class SigilRotationFunctionRandom implements
 
   }
 
-  @SuppressWarnings("boxing") @Override public Double getRotation(
+  @SuppressWarnings("boxing")
+  @Override
+  public Double getRotation(
     final Character c)
   {
     return NullCheck.notNull(Math.random());
   }
 
-  @Override public String toString()
+  @Override
+  public String toString()
   {
     return "Completely random";
   }
