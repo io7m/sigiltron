@@ -16,10 +16,8 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
 import net.java.dev.designgridlayout.DesignGridLayout;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.swing.JSVGCanvas;
@@ -47,13 +45,17 @@ import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.geom.AffineTransform;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 final class SigiltronMainWindow extends JFrame
@@ -73,12 +75,14 @@ final class SigiltronMainWindow extends JFrame
   private final JButton save;
   private final JFormattedTextField spread;
   private final JComboBox<SigilSpreadFunctionType> spread_function;
+  private final SecureRandom random;
 
   SigiltronMainWindow()
   {
     final Container c = this.getContentPane();
 
     this.font_cache = new WeakHashMap<>();
+    this.random = new SecureRandom();
 
     this.canvas = new JSVGCanvas();
     this.canvas.setPreferredSize(new Dimension(640, 480));
@@ -102,11 +106,11 @@ final class SigiltronMainWindow extends JFrame
     final JButton input_now = new JButton("Generate");
     input_now.setToolTipText("Generate a sigil!");
     input_now.addActionListener(e -> {
-      final List<Character> cs = new ArrayList<>();
       final String text = input.getText();
+      final List<Character> cs = new ArrayList<>(text.length());
       for (int index = 0; index < text.length(); ++index) {
         final char ch = text.charAt(index);
-        cs.add(new Character(ch));
+        cs.add(Character.valueOf(ch));
       }
 
       final SigiltronMainWindow sw = SigiltronMainWindow.this;
@@ -258,41 +262,26 @@ final class SigiltronMainWindow extends JFrame
     try {
       final JFileChooser dialog = new JFileChooser();
       dialog.setMultiSelectionEnabled(false);
-      dialog.setFileFilter(new FileFilter()
-      {
-        @Override
-        public boolean accept(
-          @Nullable final File f)
-        {
-          final File fn = NullCheck.notNull(f, "File");
-          return fn.isDirectory() || fn.getName().endsWith(".svg");
-        }
-
-        @Override
-        public String getDescription()
-        {
-          return "SVG files (*.svg)";
-        }
-      });
+      dialog.setFileFilter(new SaveFileFilter());
 
       final int r = dialog.showSaveDialog(c);
       if (r == JFileChooser.APPROVE_OPTION) {
         final File f = dialog.getSelectedFile();
 
         final SVGDocument d = this.canvas.getSVGDocument();
-
-        final OutputStreamWriter writer =
-          new OutputStreamWriter(new FileOutputStream(f));
-
-        final Package p = this.getClass().getPackage();
-        writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        final String p_impl = p.getImplementationTitle();
-        final String p_vers = p.getImplementationVersion();
-        writer.append(String.format("<!-- %s %s -->", p_impl, p_vers));
-        writer.append(System.lineSeparator());
-        DOMUtilities.writeDocument(d, writer);
-        writer.flush();
-        writer.close();
+        try (final OutputStream stream = Files.newOutputStream(f.toPath())) {
+          try (final OutputStreamWriter writer =
+                 new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
+            final Package p = this.getClass().getPackage();
+            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            final String p_impl = p.getImplementationTitle();
+            final String p_vers = p.getImplementationVersion();
+            writer.append(String.format("<!-- %s %s -->", p_impl, p_vers));
+            writer.append(System.lineSeparator());
+            DOMUtilities.writeDocument(d, writer);
+            writer.flush();
+          }
+        }
       }
     } catch (final HeadlessException | IOException x) {
       SigilErrorBox.showError(LOG, x);
@@ -322,15 +311,12 @@ final class SigiltronMainWindow extends JFrame
     for (final Character c : cs) {
       assert c != null;
 
-      final int font_size = (int) ((Math.random() * 100) + 100);
+      final int font_size = this.random.nextInt(100) + 100;
       final String font_name = ff.getFont(c, font_size);
 
-      final Font font;
-      if (this.font_cache.containsKey(font_name)) {
-        font = this.font_cache.get(font_name);
-      } else {
-        font = Font.decode(font_name);
-      }
+      final Font font =
+        this.font_cache.computeIfAbsent(font_name, Font::decode);
+
       this.font_cache.put(font_name, font);
 
       g.setFont(font);
@@ -343,5 +329,26 @@ final class SigiltronMainWindow extends JFrame
     g.getRoot(root);
 
     this.canvas.setSVGDocument(doc);
+  }
+
+  private static final class SaveFileFilter extends FileFilter
+  {
+    SaveFileFilter()
+    {
+
+    }
+
+    @Override
+    public boolean accept(final File f)
+    {
+      final File fn = Objects.requireNonNull(f, "File");
+      return fn.isDirectory() || fn.getName().endsWith(".svg");
+    }
+
+    @Override
+    public String getDescription()
+    {
+      return "SVG files (*.svg)";
+    }
   }
 }

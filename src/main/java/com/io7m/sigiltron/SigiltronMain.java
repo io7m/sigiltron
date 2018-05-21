@@ -53,14 +53,6 @@ public final class SigiltronMain
   public static void main(
     final String[] args)
   {
-    SwingUtilities.invokeLater(new Runnable()
-    {
-      @Override
-      public void
-      run()
-      {
-        new SigiltronMain();
-      }
-    });
+    SwingUtilities.invokeLater(SigiltronMain::new);
   }
 }

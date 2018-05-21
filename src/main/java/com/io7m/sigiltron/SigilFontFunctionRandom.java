@@ -16,9 +16,9 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jnull.NullCheck;
-
 import javax.swing.JComboBox;
+import java.security.SecureRandom;
+import java.util.Objects;
 
 /**
  * A function that uses the currently selected font for all characters.
@@ -27,6 +27,7 @@ import javax.swing.JComboBox;
 public final class SigilFontFunctionRandom implements SigilFontFunctionType
 {
   private final JComboBox<String> box;
+  private final SecureRandom random;
 
   /**
    * Construct a font function.
@@ -37,7 +38,8 @@ public final class SigilFontFunctionRandom implements SigilFontFunctionType
   public SigilFontFunctionRandom(
     final JComboBox<String> in_box)
   {
-    this.box = NullCheck.notNull(in_box, "Box");
+    this.box = Objects.requireNonNull(in_box, "Box");
+    this.random = new SecureRandom();
   }
 
   @SuppressWarnings("boxing")
@@ -47,7 +49,7 @@ public final class SigilFontFunctionRandom implements SigilFontFunctionType
     final int size)
   {
     final int count = this.box.getItemCount();
-    final String name = this.box.getItemAt((int) (Math.random() * count));
+    final String name = this.box.getItemAt(this.random.nextInt(count));
     final String r = String.format("%s %d", name, size);
     assert r != null;
     return r;

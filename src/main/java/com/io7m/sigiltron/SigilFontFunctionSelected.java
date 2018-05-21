@@ -16,9 +16,8 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jnull.NullCheck;
-
 import javax.swing.JComboBox;
+import java.util.Objects;
 
 /**
  * A function that uses the currently selected font for all characters.
@@ -37,7 +36,7 @@ public final class SigilFontFunctionSelected implements SigilFontFunctionType
   public SigilFontFunctionSelected(
     final JComboBox<String> in_box)
   {
-    this.box = NullCheck.notNull(in_box, "Box");
+    this.box = Objects.requireNonNull(in_box, "Box");
   }
 
   @SuppressWarnings("boxing")

@@ -30,6 +30,6 @@ public interface SigilFontFunctionType
    */
 
   String getFont(
-    final Character c,
-    final int size);
+    Character c,
+    int size);
 }

@@ -1,10 +1,10 @@
 /*
  * Copyright © 2014 <code@io7m.com> http://io7m.com
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -16,7 +16,7 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jnull.NullCheck;
+import java.security.SecureRandom;
 
 /**
  * A completely random rotation.
@@ -25,13 +25,15 @@ import com.io7m.jnull.NullCheck;
 public final class SigilRotationFunctionRandom implements
   SigilRotationFunctionType
 {
+  private final SecureRandom random;
+
   /**
    * Construct a rotation function.
    */
 
   public SigilRotationFunctionRandom()
   {
-
+    this.random = new SecureRandom();
   }
 
   @SuppressWarnings("boxing")
@@ -39,7 +41,7 @@ public final class SigilRotationFunctionRandom implements
   public Double getRotation(
     final Character c)
   {
-    return NullCheck.notNull(Math.random());
+    return Double.valueOf(this.random.nextDouble());
   }
 
   @Override

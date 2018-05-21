@@ -16,8 +16,6 @@
 
 package com.io7m.sigiltron;
 
-import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 import net.java.dev.designgridlayout.DesignGridLayout;
 import org.slf4j.Logger;
@@ -29,11 +27,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 /**
  * Error message functions.
@@ -55,7 +53,7 @@ final class SigilErrorBox
   private static JDialog showActualErrorBox(
     final String title,
     final String message,
-    final @Nullable JTextArea backtrace)
+    final JTextArea backtrace)
   {
     final JDialog d = new JDialog();
     d.setTitle(title);
@@ -133,67 +131,17 @@ final class SigilErrorBox
       e);
   }
 
-  public static void showErrorLater(
-    final Logger log,
-    final Throwable e)
-  {
-    SwingUtilities.invokeLater(() -> showError(log, e));
-  }
-
-  public static JDialog showErrorWithoutException(
-    final Logger log,
-    final String title,
-    final String message)
-  {
-    log.error(title + ": " + message);
-    return showActualErrorBox(title, message, null);
-  }
-
-  public static void showErrorWithoutExceptionLater(
-    final Logger log,
-    final String title,
-    final String message)
-  {
-    log.error(title + ": " + message);
-
-    SwingUtilities.invokeLater(() -> {
-      final JTextArea text = new JTextArea();
-      text.setEditable(false);
-      text.setText(message);
-      showActualErrorBox(title, message, text);
-    });
-  }
-
-  public static JDialog showErrorWithTitle(
-    final Logger log,
-    final String title,
-    final Throwable e)
-  {
-    log.error(showStackTraceText(e));
-    return showActualErrorWithException(
-      title,
-      e.getMessage(),
-      e);
-  }
-
-  public static void showErrorWithTitleLater(
-    final Logger log,
-    final String title,
-    final Throwable e)
-  {
-    SwingUtilities.invokeLater(() -> showErrorWithTitle(log, title, e));
-  }
-
   private static String showStackTraceText(
     final Throwable e)
   {
+    final String separator = System.lineSeparator();
     try (final StringWriter writer = new StringWriter()) {
       writer.append(e.getMessage());
-      writer.append(System.lineSeparator());
-      writer.append(System.lineSeparator());
+      writer.append(separator);
+      writer.append(separator);
 
       e.printStackTrace(new PrintWriter(writer));
-      return NullCheck.notNull(writer.toString());
+      return Objects.requireNonNull(writer.toString());
     } catch (final IOException e1) {
       throw new UnreachableCodeException(e1);
     }

@@ -19,7 +19,6 @@ package com.io7m.sigiltron;
 import com.io7m.junreachable.UnreachableCodeException;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import java.awt.event.WindowEvent;
 
 /**
@@ -43,16 +42,5 @@ final class SigilWindowUtilities
     final WindowEvent ev =
       new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING);
     dialog.dispatchEvent(ev);
-  }
-
-  /**
-   * Send a {@link WindowEvent#WINDOW_CLOSING} event to the given window.
-   */
-
-  static void closeWindow(
-    final JFrame frame)
-  {
-    final WindowEvent ev = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
-    frame.dispatchEvent(ev);
   }
 }
