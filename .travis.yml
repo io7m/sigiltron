@@ -1,18 +1,12 @@
-env:
-  _JAVA_OPTIONS="-Xms1G -Xmx4G"
-
 language: java
 
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+install: true
 
 script:
-  - mvn clean package
+  - mvn --errors clean verify site
 
 notifications:
   irc: "chat.freenode.net#io7m"
