@@ -3,15 +3,16 @@
 
   <Match>
     <Or>
-      <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
-      <Bug pattern="OPM_OVERLY_PERMISSIVE_METHOD"/>
-      <Bug pattern="DRE_DECLARED_RUNTIME_EXCEPTION"/>
       <Bug pattern="CRLF_INJECTION_LOGS"/>
+      <Bug pattern="DRE_DECLARED_RUNTIME_EXCEPTION"/>
+      <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS"/>
+      <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
+      <Bug pattern="LII_LIST_INDEXED_ITERATING"/>
+      <Bug pattern="OPM_OVERLY_PERMISSIVE_METHOD"/>
+      <Bug pattern="PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS"/>
+      <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
       <Bug pattern="S508C_NON_TRANSLATABLE_STRING"/>
       <Bug pattern="S508C_NO_SETLABELFOR"/>
-      <Bug pattern="LII_LIST_INDEXED_ITERATING"/>
-      <Bug pattern="PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS"/>
-      <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS"/>
     </Or>
   </Match>
 
