@@ -135,7 +135,7 @@ final class SigilErrorBox
     final Throwable e)
   {
     final String separator = System.lineSeparator();
-    try (final StringWriter writer = new StringWriter()) {
+    try (StringWriter writer = new StringWriter()) {
       writer.append(e.getMessage());
       writer.append(separator);
       writer.append(separator);

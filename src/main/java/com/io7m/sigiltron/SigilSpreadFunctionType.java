@@ -29,5 +29,5 @@ public interface SigilSpreadFunctionType
    */
 
   Integer getSpread(
-    final int size);
+    int size);
 }

@@ -35,7 +35,7 @@ final class SigilIcons
   static JLabel makeErrorIcon()
     throws IOException
   {
-    try (final InputStream stream =
+    try (InputStream stream =
            SigilIcons.class.getResourceAsStream(
              "/com/io7m/sigiltron/error.png")) {
       final BufferedImage image = ImageIO.read(stream);

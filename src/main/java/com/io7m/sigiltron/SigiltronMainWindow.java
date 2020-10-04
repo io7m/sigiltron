@@ -269,8 +269,8 @@ final class SigiltronMainWindow extends JFrame
         final File f = dialog.getSelectedFile();
 
         final SVGDocument d = this.canvas.getSVGDocument();
-        try (final OutputStream stream = Files.newOutputStream(f.toPath())) {
-          try (final OutputStreamWriter writer =
+        try (OutputStream stream = Files.newOutputStream(f.toPath())) {
+          try (OutputStreamWriter writer =
                  new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
             final Package p = this.getClass().getPackage();
             writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
