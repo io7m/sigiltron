@@ -1,9 +1,15 @@
 sigiltron
-=====
+===
 
-[![Build Status](https://travis-ci.org/io7m/sigiltron.svg)](https://travis-ci.org/io7m/sigiltron)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.io7m.sigiltron/sigiltron/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.io7m.sigiltron/sigiltron)
-[![Maven Central (snapshot)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.io7m.sigilton/com.io7m.sigilton.svg?style=flat-square)](https://oss.sonatype.org/content/repositories/snapshots/com/io7m/sigilton/)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b05b3ccdd0dc407993018cc19bf556bb)](https://www.codacy.com/app/github_79/sigiltron?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=io7m/sigiltron&amp;utm_campaign=Badge_Grade)
+[![Maven Central](https://img.shields.io/maven-central/v/sigiltron/sigiltron.svg?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22sigiltron%22)
+[![Maven Central (snapshot)](https://img.shields.io/nexus/s/https/oss.sonatype.org/sigiltron/sigiltron.svg?style=flat-square)](https://oss.sonatype.org/content/repositories/snapshots/com/io7m/sigiltron/)
+[![Codecov](https://img.shields.io/codecov/c/github/io7m/sigiltron.svg?style=flat-square)](https://codecov.io/gh/io7m/sigiltron)
 
-![Screenshot](https://raw.githubusercontent.com/io7m/sigiltron/develop/src/site/screenshot.png)
+![sigiltron](./src/site/resources/sigiltron.jpg?raw=true)
+
+| JVM             | Platform | Status |
+|-----------------|----------|--------|
+| OpenJDK LTS     | Linux    | [![Build (OpenJDK LTS, Linux)](https://img.shields.io/github/workflow/status/io7m/sigiltron/main-openjdk_lts-linux)](https://github.com/io7m/sigiltron/actions?query=workflow%3Amain-openjdk_lts-linux) |
+| OpenJDK Current | Linux    | [![Build (OpenJDK Current, Linux)](https://img.shields.io/github/workflow/status/io7m/sigiltron/main-openjdk_current-linux)](https://github.com/io7m/sigiltron/actions?query=workflow%3Amain-openjdk_current-linux)
+| OpenJDK Current | Windows  | [![Build (OpenJDK Current, Windows)](https://img.shields.io/github/workflow/status/io7m/sigiltron/main-openjdk_current-windows)](https://github.com/io7m/sigiltron/actions?query=workflow%3Amain-openjdk_current-windows)
+
